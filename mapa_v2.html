@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa Conceptual Interactivo • Análisis y Verificación de Algoritmos</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  
+  <!-- KaTeX para renderizado matemático LaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Fondo de cuadrícula de puntos sutiles (Dot Grid) */
+    .dot-grid {
+      background-color: #f8fafc;
+      background-image: radial-gradient(#cbd5e1 1.35px, transparent 1.35px);
+      background-size: 24px 24px;
+    }
+
+    /* Animación para enlaces cruzados */
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    .cross-link-path {
+      stroke-dasharray: 6, 6;
+      animation: dashFlow 1s linear infinite;
+    }
+
+    /* Transiciones suaves de nodos */
+    .node-card {
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .node-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px rgba(15, 23, 42, 0.14);
+    }
+    .node-card.selected {
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28), 0 12px 24px -6px rgba(15, 23, 42, 0.16);
+    }
+
+    /* Scrollbar discreto para el panel inspector */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .katex {
+      font-size: 1.02em;
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.absolute{position:absolute}.relative{position:relative}.bottom-5{bottom:1.25rem}.left-0{left:0px}.left-3{left:0.75rem}.left-5{left:1.25rem}.right-2\.5{right:0.625rem}.right-5{right:1.25rem}.top-0{top:0px}.-right-3\.5{right:-0.875rem}.top-1\/2{top:50%}.z-20{z-index:20}.z-30{z-index:30}.z-10{z-index:10}.mb-2\.5{margin-bottom:0.625rem}.mt-3{margin-top:0.75rem}.mb-0\.5{margin-bottom:0.125rem}.mb-1{margin-bottom:0.25rem}.mb-2{margin-bottom:0.5rem}.mt-0\.5{margin-top:0.125rem}.mt-2{margin-top:0.5rem}.flex{display:flex}.hidden{display:none}.h-10{height:2.5rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-full{height:100%}.h-screen{height:100vh}.h-1\.5{height:0.375rem}.h-7{height:1.75rem}.w-10{width:2.5rem}.w-2{width:0.5rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-72{width:18rem}.w-full{width:100%}.w-screen{width:100vw}.w-1\.5{width:0.375rem}.w-7{width:1.75rem}.min-w-0{min-width:0px}.max-w-xs{max-width:20rem}.max-w-\[160px\]{max-width:160px}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.origin-top-left{transform-origin:top left}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-grab{cursor:grab}.cursor-pointer{cursor:pointer}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-visible{overflow:visible}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-xl{border-radius:0.75rem}.rounded{border-radius:0.25rem}.rounded-md{border-radius:0.375rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-l{border-left-width:1px}.border-t{border-top-width:1px}.border-pink-200{--tw-border-opacity:1;border-color:rgb(251 207 232 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-200\/90{border-color:rgb(226 232 240 / 0.9)}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-500{--tw-border-opacity:1;border-color:rgb(245 158 11 / var(--tw-border-opacity, 1))}.border-blue-200{--tw-border-opacity:1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-blue-500{--tw-border-opacity:1;border-color:rgb(59 130 246 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-500{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-indigo-200\/80{border-color:rgb(199 210 254 / 0.8)}.border-pink-500{--tw-border-opacity:1;border-color:rgb(236 72 153 / var(--tw-border-opacity, 1))}.border-purple-200{--tw-border-opacity:1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-purple-500{--tw-border-opacity:1;border-color:rgb(168 85 247 / var(--tw-border-opacity, 1))}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.bg-amber-500{--tw-bg-opacity:1;background-color:rgb(245 158 11 / var(--tw-bg-opacity, 1))}.bg-blue-600{--tw-bg-opacity:1;background-color:rgb(37 99 235 / var(--tw-bg-opacity, 1))}.bg-emerald-600{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-pink-50{--tw-bg-opacity:1;background-color:rgb(253 242 248 / var(--tw-bg-opacity, 1))}.bg-pink-500{--tw-bg-opacity:1;background-color:rgb(236 72 153 / var(--tw-bg-opacity, 1))}.bg-pink-600{--tw-bg-opacity:1;background-color:rgb(219 39 119 / var(--tw-bg-opacity, 1))}.bg-purple-600{--tw-bg-opacity:1;background-color:rgb(147 51 234 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/60{background-color:rgb(248 250 252 / 0.6)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-indigo-50\/70{background-color:rgb(238 242 255 / 0.7)}.bg-purple-100{--tw-bg-opacity:1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.bg-purple-50{--tw-bg-opacity:1;background-color:rgb(250 245 255 / var(--tw-bg-opacity, 1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-pink-100{--tw-bg-opacity:1;background-color:rgb(252 231 243 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-2\.5{padding:0.625rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-4{padding-top:1rem;padding-bottom:1rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.pl-9{padding-left:2.25rem}.pr-8{padding-right:2rem}.pt-2\.5{padding-top:0.625rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[10\.5px\]{font-size:10.5px}.text-\[10px\]{font-size:10px}.text-\[13px\]{font-size:13px}.text-\[9\.5px\]{font-size:9.5px}.text-lg{font-size:1.125rem;line-height:1.75rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.leading-snug{line-height:1.375}.tracking-wide{letter-spacing:0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-indigo-400{--tw-text-opacity:1;color:rgb(129 140 248 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-pink-700{--tw-text-opacity:1;color:rgb(190 24 93 / var(--tw-text-opacity, 1))}.text-purple-700{--tw-text-opacity:1;color:rgb(126 34 206 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-amber-600{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-blue-600{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-indigo-300{--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-pink-600{--tw-text-opacity:1;color:rgb(219 39 119 / var(--tw-text-opacity, 1))}.text-purple-600{--tw-text-opacity:1;color:rgb(147 51 234 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.decoration-slate-300{-webkit-text-decoration-color:#cbd5e1;text-decoration-color:#cbd5e1}.placeholder-slate-400::placeholder{--tw-placeholder-opacity:1;color:rgb(148 163 184 / var(--tw-placeholder-opacity, 1))}.opacity-100{opacity:1}.opacity-50{opacity:0.5}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.will-change-transform{will-change:transform}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-amber-100\/70:hover{background-color:rgb(254 243 199 / 0.7)}.hover\:bg-blue-100\/70:hover{background-color:rgb(219 234 254 / 0.7)}.hover\:bg-emerald-100\/70:hover{background-color:rgb(209 250 229 / 0.7)}.hover\:bg-indigo-700:hover{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity, 1))}.hover\:bg-pink-100:hover{--tw-bg-opacity:1;background-color:rgb(252 231 243 / var(--tw-bg-opacity, 1))}.hover\:bg-pink-100\/70:hover{background-color:rgb(252 231 243 / 0.7)}.hover\:bg-purple-100\/70:hover{background-color:rgb(243 232 255 / 0.7)}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200\/60:hover{background-color:rgb(226 232 240 / 0.6)}.hover\:bg-slate-200\/70:hover{background-color:rgb(226 232 240 / 0.7)}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100\/80:hover{background-color:rgb(241 245 249 / 0.8)}.hover\:text-amber-600:hover{--tw-text-opacity:1;color:rgb(217 119 6 / var(--tw-text-opacity, 1))}.hover\:text-blue-600:hover{--tw-text-opacity:1;color:rgb(37 99 235 / var(--tw-text-opacity, 1))}.hover\:text-emerald-700:hover{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.hover\:text-pink-600:hover{--tw-text-opacity:1;color:rgb(219 39 119 / var(--tw-text-opacity, 1))}.hover\:text-purple-700:hover{--tw-text-opacity:1;color:rgb(126 34 206 / var(--tw-text-opacity, 1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.focus\:border-indigo-500:focus{--tw-border-opacity:1;border-color:rgb(99 102 241 / var(--tw-border-opacity, 1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.active\:cursor-grabbing:active{cursor:grabbing}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:hidden{display:none}.sm\:w-\[390px\]{width:390px}.sm\:gap-2{gap:0.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-\[13px\]{font-size:13px}}@media (min-width: 768px){.md\:flex{display:flex}}@media (min-width: 1024px){.lg\:inline{display:inline}.lg\:w-80{width:20rem}.lg\:w-\[420px\]{width:420px}.lg\:px-6{padding-left:1.5rem;padding-right:1.5rem}}@media (min-width: 1280px){.xl\:flex{display:flex}}</style></head>
+<body class="bg-slate-50 text-slate-800 h-screen w-screen flex flex-col">
+
+  <!-- BARRA SUPERIOR FIJA -->
+  <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 lg:px-6 flex items-center justify-between gap-3 z-30 shadow-xs shrink-0">
+    <!-- Identidad del Mapa -->
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm shrink-0">
+        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10m-10 6h16M18 9l3 3-3 3"></path>
+        </svg>
+      </div>
+      <div class="truncate">
+        <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight truncate">Análisis y Verificación de Algoritmos</h1>
+        <p class="text-xs text-slate-500 font-medium truncate">Mapa Conceptual Interactivo • Lecturas Fundamentales 1 a 4</p>
+      </div>
+    </div>
+
+    <!-- Buscador en tiempo real -->
+    <div class="hidden md:flex items-center relative w-72 lg:w-80">
+      <svg class="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
+      </svg>
+      <input id="searchInput" type="text" placeholder="Buscar concepto (ej. Hoare, Invariante, RAM)..." class="w-full pl-9 pr-8 py-1.5 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all text-slate-700 placeholder-slate-400">
+      <button id="clearSearchBtn" class="hidden absolute right-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+    </div>
+
+    <!-- Filtros rápidos y controles de árbol -->
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div class="hidden xl:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 gap-1" id="filterGroup">
+        <button data-filter="ALL" class="filter-btn active px-2.5 py-1 rounded-lg text-xs font-semibold transition">Todas</button>
+        <button data-filter="L1" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-purple-700 hover:bg-purple-100/70 transition">L1</button>
+        <button data-filter="L2" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-emerald-700 hover:bg-emerald-100/70 transition">L2</button>
+        <button data-filter="L3" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-700 hover:bg-amber-100/70 transition">L3</button>
+        <button data-filter="L4" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-blue-700 hover:bg-blue-100/70 transition">L4</button>
+        <button data-filter="L5" class="filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold text-pink-700 hover:bg-pink-100/70 transition bg-slate-900 text-white shadow-xs">Enlaces</button>
+      </div>
+
+      <button id="toggleCrossLinksBtn" title="Mostrar/Ocultar enlaces cruzados entre lecturas" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-pink-200 bg-pink-50 text-pink-700 hover:bg-pink-100 transition flex items-center gap-1.5 opacity-50">
+        <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+        <span class="hidden sm:inline">Cruces</span>
+      </button>
+
+      <button id="expandAllBtn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition shadow-2xs flex items-center gap-1">
+        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path></svg>
+        <span class="hidden sm:inline">Expandir Todo</span>
+      </button>
+
+      <button id="collapseAllBtn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition shadow-2xs flex items-center gap-1">
+        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"></path></svg>
+        <span class="hidden sm:inline">Colapsar Todo</span>
+      </button>
+
+      <button id="downloadHtmlBtn" title="Descargar este mapa como archivo HTML independiente" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-xs flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"></path></svg>
+        <span class="hidden lg:inline">Guardar HTML</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ÁREA PRINCIPAL: LIENZO + PANEL INSPECTOR -->
+  <div class="flex-1 flex relative overflow-hidden">
+    
+    <!-- LIENZO INTERACTIVO -->
+    <main id="canvasViewport" class="flex-1 relative dot-grid overflow-hidden cursor-grab active:cursor-grabbing">
+      
+      <!-- Contenedor Transformable (Pan & Zoom) -->
+      <div id="canvasWorld" class="absolute top-0 left-0 origin-top-left will-change-transform" style="transform: translate(40px, 40px) scale(0.40824);">
+        <!-- Capa SVG para curvas Bézier y Enlaces Cruzados -->
+        <svg id="edgesSvg" class="absolute top-0 left-0 overflow-visible pointer-events-none" width="4000" height="3000"><defs><marker id="arrow-ROOT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0f172a"></path></marker><marker id="arrow-L1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed"></path></marker><marker id="arrow-L2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669"></path></marker><marker id="arrow-L3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706"></path></marker><marker id="arrow-L4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb"></path></marker><marker id="arrow-L5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#db2777"></path></marker></defs><path d="M 678 240 C 747 240, 747 81, 816 81" fill="none" stroke="#db2777" stroke-width="2" stroke-opacity="0.75" marker-end="url(#arrow-L5)"></path><path d="M 678 240 C 747 240, 747 187, 816 187" fill="none" stroke="#db2777" stroke-width="2" stroke-opacity="0.75" marker-end="url(#arrow-L5)"></path><path d="M 678 240 C 747 240, 747 293, 816 293" fill="none" stroke="#db2777" stroke-width="2" stroke-opacity="0.75" marker-end="url(#arrow-L5)"></path><path d="M 678 240 C 747 240, 747 399, 816 399" fill="none" stroke="#db2777" stroke-width="2" stroke-opacity="0.75" marker-end="url(#arrow-L5)"></path><path d="M 288 240 C 357 240, 357 240, 426 240" fill="none" stroke="#db2777" stroke-width="2" stroke-opacity="0.75" marker-end="url(#arrow-L5)"></path></svg>
+        
+        <!-- Capa HTML para Píldoras de Enlace (Proposiciones) -->
+        <div id="linkLabelsLayer" class="absolute top-0 left-0 pointer-events-none"><div class="absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white bg-pink-50 text-pink-700 border-pink-200" style="left: 747px; top: 160.5px;">conecta L1 → L2</div><div class="absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white bg-pink-50 text-pink-700 border-pink-200" style="left: 747px; top: 213.5px;">conecta L2 → L3</div><div class="absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white bg-pink-50 text-pink-700 border-pink-200" style="left: 747px; top: 266.5px;">conecta L3 → L4</div><div class="absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white bg-pink-50 text-pink-700 border-pink-200" style="left: 747px; top: 319.5px;">conecta L4 → L1</div><div class="absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white bg-pink-50 text-pink-700 border-pink-200" style="left: 357px; top: 240px;">articula el curso vía</div></div>
+
+        <!-- Capa HTML para Tarjetas de Conceptos -->
+        <div id="nodesLayer" class="absolute top-0 left-0"><div class="node-card absolute rounded-xl border-2 border-slate-800 bg-white  opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 40px; top: 199px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500">NÚCLEO CENTRAL</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#0f172a" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="Análisis y Verificación de Algoritmos">Análisis y Verificación de Algoritmos</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">Correctitud formal (L1–L3) + Eficiencia asintótica (L4)</div>
+        <button class="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-white font-bold text-sm flex items-center justify-center shadow-md hover:scale-110 transition z-10 cursor-pointer" title="Colapsar rama" style="background-color: rgb(15, 23, 42);">−</button></div><div class="node-card absolute rounded-xl border-2 border-pink-500 bg-white selected opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 430px; top: 199px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-pink-600">ENLACES CRUZADOS</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#db2777" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="5. Enlaces Cruzados entre Lecturas">5. Enlaces Cruzados entre Lecturas</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">Conexiones lógicas entre verificación y complejidad</div>
+        <button class="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-white font-bold text-sm flex items-center justify-center shadow-md hover:scale-110 transition z-10 cursor-pointer" title="Colapsar rama" style="background-color: rgb(219, 39, 119);">−</button></div><div class="node-card absolute rounded-xl border-2 border-pink-500 bg-white  opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 820px; top: 40px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-pink-600">ENLACES CRUZADOS</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#db2777" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="Hoare {Q}S{R} ⇒ wp(S, R)">Hoare {Q}S{R} ⇒ wp(S, R)</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">Validez de triplas demostrada vía implicación lógica</div>
+        </div><div class="node-card absolute rounded-xl border-2 border-pink-500 bg-white  opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 820px; top: 146px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-pink-600">ENLACES CRUZADOS</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#db2777" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="wp Recursiva ⇒ Teorema de Invarianza">wp Recursiva ⇒ Teorema de Invarianza</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">Sustitución de recurrencias por Invariante P y Cota t</div>
+        </div><div class="node-card absolute rounded-xl border-2 border-pink-500 bg-white  opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 820px; top: 252px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-pink-600">ENLACES CRUZADOS</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#db2777" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="Cota de Ciclo (t) ⇒ Tiempo T(n)">Cota de Ciclo (t) ⇒ Tiempo T(n)</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">El límite de iteraciones acota operaciones RAM</div>
+        </div><div class="node-card absolute rounded-xl border-2 border-pink-500 bg-white  opacity-100 px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm" style="left: 820px; top: 358px; width: 248px; height: 82px;">
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider text-pink-600">ENLACES CRUZADOS</span>
+            <span class="w-1.5 h-1.5 rounded-full" style="background:#db2777" title="Incluye caso real de ingeniería"></span>
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="Peor Caso O(g(n)) ⇒ Precondición Q">Peor Caso O(g(n)) ⇒ Precondición Q</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">Restringir entradas evita degradación asintótica</div>
+        </div></div>
+      </div>
+
+      <!-- LEYENDA FLOTANTE INFERIOR IZQUIERDA -->
+      <aside class="absolute bottom-5 left-5 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 shadow-lg max-w-xs z-20 pointer-events-auto">
+        <h2 class="text-[11px] font-extrabold tracking-wider text-slate-400 uppercase mb-2.5">Ejes Temáticos por Lectura</h2>
+        <ul class="space-y-2 text-xs font-medium text-slate-700">
+          <li class="flex items-center gap-2.5 cursor-pointer hover:text-purple-700" onclick="applyAxisFilter('L1')">
+            <span class="w-3 h-3 rounded-full bg-purple-600 shrink-0 shadow-xs"></span>
+            <span><strong>L1:</strong> Triplas de Hoare y Especificación</span>
+          </li>
+          <li class="flex items-center gap-2.5 cursor-pointer hover:text-emerald-700" onclick="applyAxisFilter('L2')">
+            <span class="w-3 h-3 rounded-full bg-emerald-600 shrink-0 shadow-xs"></span>
+            <span><strong>L2:</strong> Precondición Más Débil <span class="font-mono text-[11px]">wp(S, R)</span></span>
+          </li>
+          <li class="flex items-center gap-2.5 cursor-pointer hover:text-amber-600" onclick="applyAxisFilter('L3')">
+            <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0 shadow-xs"></span>
+            <span><strong>L3:</strong> Programas Iterativos e Invarianza</span>
+          </li>
+          <li class="flex items-center gap-2.5 cursor-pointer hover:text-blue-600" onclick="applyAxisFilter('L4')">
+            <span class="w-3 h-3 rounded-full bg-blue-600 shrink-0 shadow-xs"></span>
+            <span><strong>L4:</strong> Eficiencia, RAM y Asintótica</span>
+          </li>
+          <li class="flex items-center gap-2.5 cursor-pointer hover:text-pink-600" onclick="applyAxisFilter('L5')">
+            <span class="w-3 h-3 rounded-full bg-pink-600 shrink-0 shadow-xs"></span>
+            <span><strong>L5:</strong> Enlaces Cruzados entre Lecturas</span>
+          </li>
+        </ul>
+        <div class="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-400 leading-relaxed">
+          Clic en nodo para inspeccionar • Clic en círculo (<span class="font-bold text-slate-600">+/-</span>) para desplegar hijos
+        </div>
+      </aside>
+
+      <!-- CONTROLES DE ZOOM FLOTANTES -->
+      <div class="absolute bottom-5 right-5 flex flex-col bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-lg overflow-hidden z-20">
+        <button id="zoomInBtn" class="w-10 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-bold text-base border-b border-slate-100 transition" title="Acercar">+</button>
+        <button id="zoomResetBtn" class="w-10 h-8 flex items-center justify-center text-[11px] font-bold text-slate-600 hover:bg-slate-100 border-b border-slate-100 transition" title="Restablecer vista">41%</button>
+        <button id="zoomOutBtn" class="w-10 h-9 flex items-center justify-center text-slate-700 hover:bg-slate-100 font-bold text-base border-b border-slate-100 transition" title="Alejar">−</button>
+        <button id="centerMapBtn" class="w-10 h-9 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition" title="Centrar mapa">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path></svg>
+        </button>
+      </div>
+    </main>
+
+    <!-- PANEL LATERAL DERECHO: INSPECTOR DE NODO -->
+    <aside id="inspectorPanel" class="w-full sm:w-[390px] lg:w-[420px] bg-white border-l border-slate-200 h-full flex flex-col z-25 shadow-xl shrink-0 transition-all duration-300">
+      
+      <!-- Cabecera del Inspector -->
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/60">
+        <div class="flex items-center gap-2">
+          <span id="inspBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide bg-pink-100 text-pink-700">ENLACES CRUZADOS</span>
+          <span id="inspSubtitleTag" class="text-xs font-medium text-slate-500 truncate">Síntesis Transversal</span>
+        </div>
+        <button id="closeInspectorBtn" class="sm:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-200/60 hover:text-slate-700">✕</button>
+      </div>
+
+      <!-- Contenido Desplazable del Inspector -->
+      <div id="inspectorContent" class="flex-1 overflow-y-auto p-5 space-y-5 custom-scroll">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900 leading-snug">5. Enlaces Cruzados entre Lecturas</h2>
+          <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2">Las cuatro lecturas forman una cadena deductiva continua: la especificación (L1) alimenta el cálculo de wp (L2), que se generaliza a ciclos mediante invariantes (L3), cuya cota determina el costo computacional (L4).</p>
+        </div>
+
+        <!-- Caja de Formalización Matemática LaTeX -->
+        <div class="rounded-2xl bg-slate-900 text-slate-100 p-4 shadow-md border border-slate-800">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">Formalización Matemática</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-indigo-300 border border-slate-700">LaTeX</span>
+          </div>
+          <div class="overflow-x-auto py-2 text-center text-sm sm:text-base text-white">
+            <span><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>L1&nbsp;</mtext><mo stretchy="false">{</mo><mi>Q</mi><mo stretchy="false">}</mo><mi>S</mi><mo stretchy="false">{</mo><mi>R</mi><mo stretchy="false">}</mo>  <mo>↔</mo>  <mtext>L2&nbsp;wp</mtext>  <mo>↔</mo>  <mtext>L3&nbsp;</mtext><mo stretchy="false">(</mo><mi>P</mi><mo separator="true">,</mo><mi>t</mi><mo stretchy="false">)</mo>  <mo>↔</mo>  <mtext>L4&nbsp;</mtext><mi>O</mi><mo stretchy="false">(</mo><mi>g</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\text{L1 } \{Q\}S\{R\} \;\leftrightarrow\; \text{L2 } \text{wp} \;\leftrightarrow\; \text{L3 } (P, t) \;\leftrightarrow\; \text{L4 } O(g(n))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">L1&nbsp;</span></span><span class="mopen">{</span><span class="mord mathnormal">Q</span><span class="mclose">}</span><span class="mord mathnormal" style="margin-right: 0.0576em;">S</span><span class="mopen">{</span><span class="mord mathnormal" style="margin-right: 0.0077em;">R</span><span class="mclose">}</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">↔</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.8778em; vertical-align: -0.1944em;"></span><span class="mord text"><span class="mord">L2&nbsp;</span></span><span class="mord text"><span class="mord">wp</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">↔</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">L3&nbsp;</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.1389em;">P</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal">t</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">↔</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord text"><span class="mord">L4&nbsp;</span></span><span class="mord mathnormal" style="margin-right: 0.0278em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.0359em;">g</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span></span></span>
+          </div>
+        </div>
+
+        <!-- Proposiciones Lógicas -->
+        
+          <div>
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+              <span>Proposiciones Lógicas en el Mapa</span>
+            </div>
+            <div class="space-y-2">
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div class="text-slate-500 font-medium mb-1">Análisis y Verificación de Algoritmos</div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border bg-pink-50 text-pink-700 border-pink-200">articula el curso vía</span>
+              <span class="font-bold text-slate-900">5. Enlaces Cruzados entre Lecturas</span>
+            </div>
+          </div>
+        
+            <div onclick="selectNode('l5_1_2')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-xs cursor-pointer transition">
+              <div class="text-slate-800 font-semibold mb-1">5. Enlaces Cruzados entre Lecturas</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border bg-pink-50 text-pink-700 border-pink-200">conecta L1 → L2</span>
+                <span class="font-bold underline decoration-slate-300" style="color:#db2777">Hoare {Q}S{R} ⇒ wp(S, R)</span>
+              </div>
+            </div>
+          
+            <div onclick="selectNode('l5_2_3')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-xs cursor-pointer transition">
+              <div class="text-slate-800 font-semibold mb-1">5. Enlaces Cruzados entre Lecturas</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border bg-pink-50 text-pink-700 border-pink-200">conecta L2 → L3</span>
+                <span class="font-bold underline decoration-slate-300" style="color:#db2777">wp Recursiva ⇒ Teorema de Invarianza</span>
+              </div>
+            </div>
+          
+            <div onclick="selectNode('l5_3_4')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-xs cursor-pointer transition">
+              <div class="text-slate-800 font-semibold mb-1">5. Enlaces Cruzados entre Lecturas</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border bg-pink-50 text-pink-700 border-pink-200">conecta L3 → L4</span>
+                <span class="font-bold underline decoration-slate-300" style="color:#db2777">Cota de Ciclo (t) ⇒ Tiempo T(n)</span>
+              </div>
+            </div>
+          
+            <div onclick="selectNode('l5_4_1')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-xs cursor-pointer transition">
+              <div class="text-slate-800 font-semibold mb-1">5. Enlaces Cruzados entre Lecturas</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border bg-pink-50 text-pink-700 border-pink-200">conecta L4 → L1</span>
+                <span class="font-bold underline decoration-slate-300" style="color:#db2777">Peor Caso O(g(n)) ⇒ Precondición Q</span>
+              </div>
+            </div>
+          </div>
+          </div>
+        
+
+        <!-- Aplicación en la Industria / Caso Real -->
+        <div class="rounded-2xl bg-indigo-50/70 border border-indigo-200/80 p-4">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-indigo-800">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+              <span>Aplicación en la Industria</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200 truncate max-w-[160px]">Diseño Integral de Algoritmos Confiables</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed">Un ingeniero de software completo no separa la verificación de la eficiencia: usa precondiciones para evitar peores casos y cotas de ciclo para demostrar tanto terminación como complejidad temporal.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- DATOS Y LÓGICA DEL MAPA CONCEPTUAL -->
+  <script>
+    // Configuración de estilos por Eje Temático
+    const AXIS_THEMES = {
+      ROOT: {
+        badge: 'NÚCLEO CENTRAL',
+        tagColor: 'bg-slate-900 text-white',
+        border: 'border-slate-800',
+        accent: '#0f172a',
+        pillBg: 'bg-slate-100 text-slate-700 border-slate-300',
+        labelColor: 'text-slate-500'
+      },
+      L1: {
+        badge: 'LECTURA 1',
+        tagColor: 'bg-purple-100 text-purple-700',
+        border: 'border-purple-500',
+        accent: '#7c3aed',
+        pillBg: 'bg-purple-50 text-purple-700 border-purple-200',
+        labelColor: 'text-purple-600'
+      },
+      L2: {
+        badge: 'LECTURA 2',
+        tagColor: 'bg-emerald-100 text-emerald-700',
+        border: 'border-emerald-500',
+        accent: '#059669',
+        pillBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        labelColor: 'text-emerald-600'
+      },
+      L3: {
+        badge: 'LECTURA 3',
+        tagColor: 'bg-amber-100 text-amber-800',
+        border: 'border-amber-500',
+        accent: '#d97706',
+        pillBg: 'bg-amber-50 text-amber-800 border-amber-200',
+        labelColor: 'text-amber-600'
+      },
+      L4: {
+        badge: 'LECTURA 4',
+        tagColor: 'bg-blue-100 text-blue-700',
+        border: 'border-blue-500',
+        accent: '#2563eb',
+        pillBg: 'bg-blue-50 text-blue-700 border-blue-200',
+        labelColor: 'text-blue-600'
+      },
+      L5: {
+        badge: 'ENLACES CRUZADOS',
+        tagColor: 'bg-pink-100 text-pink-700',
+        border: 'border-pink-500',
+        accent: '#db2777',
+        pillBg: 'bg-pink-50 text-pink-700 border-pink-200',
+        labelColor: 'text-pink-600'
+      }
+    };
+
+    // Estructura jerárquica completa del Mapa Conceptual (Lecturas 1 a 4 + Enlaces Cruzados)
+    const MAP_DATA = {
+      id: 'root',
+      axis: 'ROOT',
+      subtitleTag: 'Síntesis Integral del Módulo',
+      title: 'Análisis y Verificación de Algoritmos',
+      shortDesc: 'Correctitud formal (L1–L3) + Eficiencia asintótica (L4)',
+      explanation: 'Un algoritmo de ingeniería solo es confiable cuando cumple dos garantías complementarias: la <strong>verificación formal</strong> (demostrar matemáticamente que satisface su especificación y termina sin errores) y el <strong>análisis de eficiencia</strong> (garantizar que su consumo de tiempo y recursos escale óptimamente frente a grandes volúmenes de datos).',
+      latex: '\\{Q\\}\\; S \\;\\{R\\} \\quad \\land \\quad T(n) \\in \\Theta(g(n))',
+      industryDomain: 'Arquitectura de Software Crítico y Escalable',
+      industryCase: 'En sistemas modernos (motores financieros, aeroespaciales y buscadores web), las pruebas unitarias tradicionales no bastan: se combinan contratos formales para evitar fallos catastróficos y cotas asintóticas para soportar millones de peticiones concurrentes.',
+      expanded: true,
+      children: [
+        // ==================== EJE 1: LECTURA 1 ====================
+        {
+          id: 'l1_main',
+          axis: 'L1',
+          linkLabel: 'fundamenta contratos en',
+          subtitleTag: 'Triplas de Hoare',
+          title: '1. Especificación y Lógica de Hoare',
+          shortDesc: 'Contratos formales, estados y validez lógica',
+          explanation: 'Introduce el lenguaje matemático para especificar formalmente qué debe hacer un programa (sin importar aún cómo lo implementa) y demostrar con rigor absoluto su corrección frente a todos los estados válidos.',
+          latex: '\\{Q\\}\\; S \\;\\{R\\}',
+          industryDomain: 'Sistemas Críticos y Aeroespaciales',
+          industryCase: 'En el controlador de vuelo de una aeronave o dron autónomo, un error de cálculo numérico puede causar la pérdida total del equipo. La Lógica de Hoare permite probar matemáticamente que ningún estado válido producirá ángulos de viraje fuera de rango.',
+          expanded: true,
+          children: [
+            {
+              id: 'l1_estado',
+              axis: 'L1',
+              linkLabel: 'modela ejecución como',
+              subtitleTag: 'Transformación de Variables',
+              title: 'Estado del Programa',
+              shortDesc: 'Valores de entrada, salida y auxiliares en un instante',
+              explanation: 'El estado del programa es la fotografía de los valores que toman todas sus variables (entrada, salida y auxiliares) en un momento dado. Ejecutar un programa equivale a transformar un estado inicial en un estado final.',
+              latex: '\\sigma = \\langle A, B, T \\rangle \\;\\xrightarrow{\\;S\\;}\\; \\sigma\'',
+              industryDomain: 'Depuración y Máquinas de Estado',
+              industryCase: 'En sistemas embebidos y protocolos de red, modelar explícitamente la transición entre estados iniciales e intermedios evita condiciones de carrera y estados corruptos.',
+              expanded: false,
+              children: [
+                {
+                  id: 'l1_estado_def',
+                  axis: 'L1',
+                  linkLabel: 'se define como',
+                  subtitleTag: 'Variables del Programa',
+                  title: 'Instantánea de Memoria',
+                  shortDesc: 'Conjunto de valores de variables en un instante',
+                  explanation: 'Distingue entre variables de entrada (definen la instancia), variables de salida (conforman la solución) y variables auxiliares (almacenan resultados temporales).',
+                  latex: '\\text{Estado}: \\text{Var} \\rightarrow \\text{Valores}',
+                  industryDomain: 'Sistemas Transaccionales',
+                  industryCase: 'Los motores de bases de datos registran estados antes y después (Write-Ahead Logging) para garantizar recuperación ante fallos.'
+                }
+              ]
+            },
+            {
+              id: 'l1_spec',
+              axis: 'L1',
+              linkLabel: 'define el "qué" mediante',
+              subtitleTag: 'Precondición Q y Poscondición R',
+              title: 'Especificación Formal',
+              shortDesc: 'Contrato entre estados iniciales Q y finales R',
+              explanation: 'La pareja formada por la Precondición (Q) y la Poscondición (R). Establece qué debe lograr el algoritmo. Utiliza variables semánticas (en MAYÚSCULAS) para recordar los valores iniciales inmutables dentro de R.',
+              latex: '\\{\\text{Pre } Q: a \\ge 0 \\land b > 0 \\land a = A \\land b = B\\} \\;\\dots\\; \\{\\text{Pos } R: a = \\text{MCD}(A,B)\\}',
+              industryDomain: 'Ingeniería de Software (Design by Contract)',
+              industryCase: 'En metodologías como Design by Contract (Eiffel, Code Contracts en .NET o validadores OpenAPI), los microservicios validan precondiciones estrictas (ej. saldo >= monto) antes de ejecutar operaciones financieras.',
+              expanded: false,
+              children: [
+                {
+                  id: 'l1_pre_pos',
+                  axis: 'L1',
+                  linkLabel: 'se compone de',
+                  subtitleTag: 'Predicados y Variables Semánticas',
+                  title: 'Precondición (Q) y Poscondición (R)',
+                  shortDesc: 'Q restringe entrada; R vincula salida con entrada (Mayúsculas)',
+                  explanation: 'Q filtra los estados iniciales admisibles (ej. evitar división por cero). R exige la relación matemática entre el resultado final y los datos originales capturados en variables semánticas.',
+                  latex: '[Q \\text{ (estados iniciales)}] \\longrightarrow [R \\text{ (estados finales aceptados)}]',
+                  industryDomain: 'APIs Críticas y Seguridad',
+                  industryCase: 'Previene vulnerabilidades de desbordamiento y divisiones por cero al acotar formalmente el dominio de entrada permitido.'
+                }
+              ]
+            },
+            {
+              id: 'l1_tripla',
+              axis: 'L1',
+              linkLabel: 'deduce validez usando',
+              subtitleTag: 'Corrección Total y Propiedades',
+              title: 'Tripla de Hoare {Q} S {R}',
+              shortDesc: 'Garantiza terminación y cumplimiento de R',
+              explanation: 'Es válida si y solo si al ejecutar S desde cualquier estado que cumpla Q, el programa termina sin errores y alcanza un estado final que satisface R. Se invalida si existe un contraejemplo, un error en ejecución o un ciclo infinito.',
+              latex: '\\frac{[P \\Rightarrow Q], \\quad \\{Q\\}S\\{R\\}}{\\{P\\}S\\{R\\}} \\quad \\text{(Fortalecimiento de Precondición)}',
+              industryDomain: 'Verificación Formal de Compiladores',
+              industryCase: 'Proyectos como CompCert (compilador C verificado formalmente) utilizan reglas de inferencia de Hoare para garantizar que el código máquina generado preserve exactamente la semántica del código fuente.',
+              expanded: false,
+              children: [
+                {
+                  id: 'l1_props',
+                  axis: 'L1',
+                  linkLabel: 'cumple propiedades de',
+                  subtitleTag: 'Álgebra de Triplas',
+                  title: 'Fortalecimiento y Debilitamiento',
+                  shortDesc: 'Fortalecer Q ([P ⇒ Q]) y debilitar R ([R ⇒ P])',
+                  explanation: 'Permite adaptar especificaciones: si un programa funciona bajo una precondición amplia Q, funcionará bajo una más estricta P. Igualmente, si garantiza una poscondición fuerte R, garantiza cualquier consecuencia lógica P.',
+                  latex: '[P \\Rightarrow Q] \\land \\{Q\\}S\\{R\\} \\Rightarrow \\{P\\}S\\{R\\} \\quad | \\quad [R \\Rightarrow P] \\land \\{Q\\}S\\{R\\} \\Rightarrow \\{Q\\}S\\{P\\}',
+                  industryDomain: 'Herencia y Polimorfismo (Principio de Liskov)',
+                  industryCase: 'En programación orientada a objetos, el Principio de Sustitución de Liskov exige exactamente estas reglas: las subclases no pueden fortalecer precondiciones ni debilitar poscondiciones.'
+                }
+              ]
+            },
+            {
+              id: 'l1_caso',
+              axis: 'L1',
+              linkLabel: 'se implementa en',
+              subtitleTag: 'Caso Real • Sistemas Críticos',
+              title: 'Controlador de Vuelo de Drones',
+              shortDesc: 'Software aeroespacial sin tolerancia a fallos',
+              explanation: 'A diferencia de una consola de videojuegos donde un bloqueo se resuelve reiniciando, en sistemas aeroespaciales o médicos un error matemático tiene costos humanos o materiales incalculables.',
+              latex: '\\{\\text{Pre}: \\theta_{\\min} \\le \\theta \\le \\theta_{\\max} \\land v > 0\\}\\; \\text{ajustarTimon}() \\;\\{\\text{Pos}: |\\text{error}| < \\epsilon\\}',
+              industryDomain: 'Sistemas Críticos / Aeronáutica',
+              industryCase: 'Se definen precondiciones estrictas sobre los sensores y poscondiciones sobre los ángulos de viraje calculados, demostrando formalmente que ninguna combinación válida de entradas llevará la aeronave a pérdida de control.'
+            }
+          ]
+        },
+
+        // ==================== EJE 2: LECTURA 2 ====================
+        {
+          id: 'l2_main',
+          axis: 'L2',
+          linkLabel: 'calcula pruebas con',
+          subtitleTag: 'Corrección de Programas',
+          title: '2. Programas Imperativos y wp',
+          shortDesc: 'Precondición más débil en asignaciones y secuencias',
+          explanation: 'Formaliza el método constructivo para demostrar la validez de una tripla de Hoare en lenguajes imperativos trabajando "de atrás hacia adelante" desde la poscondición R.',
+          latex: '\\{Q\\}S\\{R\\} \\;\\equiv\\; [Q \\Rightarrow \\text{wp}(S, R)]',
+          industryDomain: 'Motores de Bases de Datos Relacionales',
+          industryCase: 'Garantiza que secuencias de sentencias de actualización (UPDATE) y bifurcaciones condicionales mantengan invariantes de integridad referencial y propiedades ACID antes de confirmar una transacción.',
+          expanded: true,
+          children: [
+            {
+              id: 'l2_wp',
+              axis: 'L2',
+              linkLabel: 'representa',
+              subtitleTag: 'Transformador de Predicados',
+              title: 'Precondición Más Débil wp(S, R)',
+              shortDesc: 'Predicado menos restrictivo que garantiza R tras S',
+              explanation: 'Dada una instrucción S y una poscondición R, wp(S, R) devuelve la condición mínima exacta que debe cumplirse antes de ejecutar S para asegurar que al terminar se cumpla R. Demostrar {Q}S{R} se reduce a probar que Q implica wp(S, R).',
+              latex: '[Q \\Rightarrow \\text{wp}(S, R)]',
+              industryDomain: 'Analizadores Estáticos de Código',
+              industryCase: 'Herramientas como Dafny, Frama-C y SPARK Ada calculan automáticamente la wp del código para verificar ausencia de errores en tiempo de compilación.'
+            },
+            {
+              id: 'l2_reglas',
+              axis: 'L2',
+              linkLabel: 'deriva instrucciones con',
+              subtitleTag: '4 Reglas Axiomáticas',
+              title: 'Reglas de Derivación Imperativa',
+              shortDesc: 'Vacía, Asignación, Condicional y Secuencia',
+              explanation: 'Permite descomponer cualquier programa sin ciclos en fórmulas lógicas puras mediante sustitución textual y evaluación regresiva.',
+              latex: '\\text{wp}(S_1; S_2, R) = \\text{wp}(S_1, \\text{wp}(S_2, R))',
+              industryDomain: 'Optimización de Consultas y Compiladores',
+              industryCase: 'Los compiladores usan estas equivalencias lógicas para reordenar instrucciones de forma segura sin alterar el resultado final.',
+              expanded: false,
+              children: [
+                {
+                  id: 'l2_asig_vacia',
+                  axis: 'L2',
+                  linkLabel: 'para instrucción simple es',
+                  subtitleTag: 'Vacía y Asignación',
+                  title: 'Vacía y Asignación (x := E)',
+                  shortDesc: 'Sustitución textual R(x := E)',
+                  explanation: 'La instrucción vacía no altera el estado: wp(vacío, R) = R. La asignación es la única instrucción que modifica directamente variables: se reemplaza cada aparición libre de x en R por la expresión E.',
+                  latex: '\\text{wp}(\\langle\\text{vacío}\\rangle, R) = R \\qquad | \\qquad \\text{wp}(x := E, R) = R(x := E)',
+                  industryDomain: 'Transformación de Variables en Memoria',
+                  industryCase: 'Permite verificar algoritmos de intercambio sin variable auxiliar (a := a+b; b := a-b; a := a-b) demostrando algebraicamente que b = A ∧ a = B.'
+                },
+                {
+                  id: 'l2_cond_sec',
+                  axis: 'L2',
+                  linkLabel: 'para control de flujo es',
+                  subtitleTag: 'Condicional y Secuencia',
+                  title: 'If-Then-Else y Composición',
+                  shortDesc: 'Evaluación por casos y encadenamiento regresivo',
+                  explanation: 'En un condicional, ambas ramas deben garantizar R bajo su respectiva guarda (C o ¬C). En composición secuencial, se aplica wp desde la última instrucción hasta la primera.',
+                  latex: '\\text{wp}(\\text{if } C \\text{ then } A \\text{ else } B, R) = (C \\Rightarrow \\text{wp}(A, R)) \\land (\\neg C \\Rightarrow \\text{wp}(B, R))',
+                  industryDomain: 'Validación de Reglas de Negocio',
+                  industryCase: 'Asegura que todos los caminos posibles de decisión (ramas if/else) converjan en un estado válido.'
+                }
+              ]
+            },
+            {
+              id: 'l2_caso',
+              axis: 'L2',
+              linkLabel: 'se implementa en',
+              subtitleTag: 'Caso Real • Bases de Datos',
+              title: 'Transacciones SQL (PostgreSQL / MySQL)',
+              shortDesc: 'Integridad ACID en secuencias de actualización',
+              explanation: 'Un bloque transaccional es una composición secuencial de asignaciones y validaciones condicionales sobre tablas relacionales.',
+              latex: '\\{\\text{Saldo}_A + \\text{Saldo}_B = K\\}\\; \\text{UPDATE}_A; \\text{UPDATE}_B \\;\\{\\text{Saldo}_A + \\text{Saldo}_B = K\\}',
+              industryDomain: 'Motores de Bases de Datos Relacionales',
+              industryCase: 'Mediante análisis regresivo equivalente a wp, el gestor garantiza que, si se cumplen las precondiciones de fondos suficientes, la secuencia de débito y crédito preservará las restricciones de integridad antes de ejecutar COMMIT.'
+            }
+          ]
+        },
+
+        // ==================== EJE 3: LECTURA 3 ====================
+        {
+          id: 'l3_main',
+          axis: 'L3',
+          linkLabel: 'verifica ciclos con',
+          subtitleTag: 'Programas Iterativos',
+          title: '3. Teorema de Invarianza',
+          shortDesc: 'Invariante de ciclo P y cota de terminación t',
+          explanation: 'Calcular la wp de un ciclo while produce una relación de recurrencia infinita e intrincada. El Teorema de Invarianza resuelve este problema mediante inducción matemática (invariante P) y una función de terminación (cota t).',
+          latex: '\\{P \\land C\\}\\; \\text{cuerpo} \\;\\{P\\} \\quad \\land \\quad [P \\land \\neg C \\Rightarrow R]',
+          industryDomain: 'Sistemas Financieros y Procesamiento Batch',
+          industryCase: 'En procesos nocturnos de conciliación bancaria con millones de movimientos, los invariantes garantizan que el balance cuadre en cada paso y las cotas evitan bloqueos infinitos en los servidores.',
+          expanded: true,
+          children: [
+            {
+              id: 'l3_invariante',
+              axis: 'L3',
+              linkLabel: 'preserva verdad mediante',
+              subtitleTag: 'Inducción sobre Iteraciones',
+              title: 'Invariante de Ciclo (P)',
+              shortDesc: 'Predicado verdadero antes y después de cada iteración',
+              explanation: 'Es una propiedad lógica sobre las variables del programa que se cumple justo al terminar la inicialización y se mantiene verdadera al finalizar cada vuelta del ciclo, capturando el progreso parcial acumulado.',
+              latex: '\\text{Inv } P: \\text{suma} = \\sum_{k=1}^{i-1} k \\;\\land\\; 1 \\le i \\le n + 1',
+              industryDomain: 'Algoritmos de Búsqueda y Ordenamiento',
+              industryCase: 'En Binary Search, el invariante garantiza que si el elemento buscado existe, siempre permanece dentro del subarreglo [low..high] tras cada iteración.'
+            },
+            {
+              id: 'l3_cota',
+              axis: 'L3',
+              linkLabel: 'asegura finitud con',
+              subtitleTag: 'Garantía de Terminación',
+              title: 'Cota de Ciclo (t)',
+              shortDesc: 'Función entera decreciente acotada por T_min',
+              explanation: 'Mide el número máximo de iteraciones restantes. Debe ser una expresión entera que disminuya estrictamente en al menos 1 unidad por iteración y nunca caiga por debajo de una constante T_min.',
+              latex: 't = (n + 1) - i, \\quad T_{\\min} = 0 \\quad \\implies \\quad \\text{máx. } t_0 - T_{\\min} + 1 \\text{ iteraciones}',
+              industryDomain: 'Sistemas en Tiempo Real y Watchdogs',
+              industryCase: 'Garantiza matemáticamente que un algoritmo iterativo (como el cálculo del MCD de Euclides o Fibonacci) jamás entrará en un bucle infinito (hang).'
+            },
+            {
+              id: 'l3_obligaciones',
+              axis: 'L3',
+              linkLabel: 'exige demostrar',
+              subtitleTag: '5 Obligaciones de Prueba',
+              title: 'Reglas del Teorema de Invarianza',
+              shortDesc: 'Inicialización, Preservación, Salida, Decremento y Límite',
+              explanation: 'Un ciclo while completamente anotado es totalmente correcto si y solo si se demuestran estas 5 obligaciones lógicas.',
+              latex: '\\begin{aligned} &1.\\; \\{Q\\}\\text{inic}\\{P\\} \\quad 2.\\; \\{P \\land C\\}\\text{cuerpo}\\{P\\} \\quad 3.\\; [P \\land \\neg C \\Rightarrow R] \\\\ &4.\\; \\{P \\land C \\land t=T\\}\\text{cuerpo}\\{t < T\\} \\quad 5.\\; [P \\land C \\Rightarrow t \\ge T_{\\min}] \\end{aligned}',
+              industryDomain: 'Verificación de Smart Contracts',
+              industryCase: 'En contratos inteligentes (Solidity/Rust), demostrar estas 5 reglas evita vulnerabilidades de agotamiento de gas (Out-of-Gas) y bloqueos de fondos.'
+            },
+            {
+              id: 'l3_caso',
+              axis: 'L3',
+              linkLabel: 'se implementa en',
+              subtitleTag: 'Caso Real • Sistemas Financieros',
+              title: 'Conciliación Bancaria Batch',
+              shortDesc: 'Acumulación exacta y terminación garantizada',
+              explanation: 'Al procesar lotes de miles de transferencias interbancarias, un bucle acumula débitos y créditos iterativamente.',
+              latex: '\\text{Inv } P: \\text{SaldoActual} = \\text{SaldoInicial} + \\sum_{k=0}^{i-1} \\text{Tx}[k] \\;\\land\\; t = N - i',
+              industryDomain: 'Banca y Pasarelas de Pago',
+              industryCase: 'El invariante certifica que ningún centavo se pierde o duplica entre iteraciones, mientras la cota t = N - i demuestra que el lote finalizará dentro de la ventana operativa nocturna.'
+            }
+          ]
+        },
+
+        // ==================== EJE 4: LECTURA 4 ====================
+        {
+          id: 'l4_main',
+          axis: 'L4',
+          linkLabel: 'evalúa rendimiento con',
+          subtitleTag: 'Análisis de Algoritmos',
+          title: '4. Complejidad y Notación Asintótica',
+          shortDesc: 'Modelo RAM, tasa de crecimiento T(n) y cotas O, Ω, Θ',
+          explanation: 'Una vez demostrada la corrección del algoritmo, se evalúa su eficiencia en tiempo de ejecución como función del tamaño de la entrada n, abstrayendo el hardware mediante el modelo RAM.',
+          latex: 'f(n) = \\Theta(g(n)) \\;\\iff\\; f(n) = O(g(n)) \\;\\land\\; f(n) = \\Omega(g(n))',
+          industryDomain: 'Motores de Búsqueda y Big Data',
+          industryCase: 'Permite seleccionar algoritmos con crecimiento O(n log n) en lugar de O(n²) para indexar y ordenar millones de documentos en milisegundos.',
+          expanded: true,
+          children: [
+            {
+              id: 'l4_ram',
+              axis: 'L4',
+              linkLabel: 'abstrae hardware usando',
+              subtitleTag: 'Máquina Teórica Independiente',
+              title: 'Modelo de Computación RAM',
+              shortDesc: '1 unidad de tiempo por cada operación básica',
+              explanation: 'Evita depender del sistema operativo, compilador o velocidad del procesador asumiendo que cada operación elemental (asignación, comparación, acceso a arreglo) toma exactamente 1 unidad de tiempo.',
+              latex: 'T(n) = \\sum_{i} o_i \\cdot \\text{frecuencia}_i(n) = a n^2 + b n + c',
+              industryDomain: 'Benchmarking Teórico de Algoritmos',
+              industryCase: 'Permite comparar matemáticamente dos algoritmos (ej. Selection Sort vs Merge Sort) antes de escribir una sola línea de código en producción.'
+            },
+            {
+              id: 'l4_casos',
+              axis: 'L4',
+              linkLabel: 'analiza escalabilidad en',
+              subtitleTag: 'Mejor Caso vs Peor Caso',
+              title: 'Tasa de Crecimiento y Casos',
+              shortDesc: 'Comportamiento asintótico cuando n → ∞',
+              explanation: 'Ignora constantes multiplicativas y términos de menor orden porque, para entradas grandes (n → ∞), el término dominante determina la velocidad. Distingue entre la instancia más favorable (Mejor Caso) y la más costosa (Peor Caso).',
+              latex: '\\text{Bubble Sort: } T_{\\text{mejor}}(n) = an + b \\quad \\text{vs} \\quad T_{\\text{peor}}(n) = an^2 + bn + c',
+              industryDomain: 'Prevención de Ataques Algorítmicos (DoS)',
+              industryCase: 'Analizar el peor caso protege servidores web contra entradas maliciosas diseñadas para disparar tiempos cuadráticos y tumbar el servicio.'
+            },
+            {
+              id: 'l4_asintotica',
+              axis: 'L4',
+              linkLabel: 'clasifica eficiencia con',
+              subtitleTag: 'Cotas Superiores, Inferiores y Ajustadas',
+              title: 'Notación Asintótica (O, Ω, Θ)',
+              shortDesc: 'Big-O (peor caso), Big-Omega (mejor caso) y Big-Theta',
+              explanation: 'Lenguaje estándar (Knuth) para acotar el crecimiento de funciones: O(g(n)) establece un techo (cota superior), Ω(g(n)) un piso (cota inferior) y Θ(g(n)) un comportamiento ajustado.',
+              latex: '\\begin{aligned} O(g(n)) &: f(n) \\le c \\cdot g(n) \\\\ \\Omega(g(n)) &: f(n) \\ge c \\cdot g(n) \\\\ \\Theta(g(n)) &: c_1 g(n) \\le f(n) \\le c_2 g(n) \\end{aligned}',
+              industryDomain: 'Ingeniería de Rendimiento y Estructuras de Datos',
+              industryCase: 'Define los acuerdos de nivel de servicio (SLA) de librerías estándar (STL en C++, Collections en Java).'
+            },
+            {
+              id: 'l4_caso',
+              axis: 'L4',
+              linkLabel: 'se implementa en',
+              subtitleTag: 'Caso Real • Software y Búsqueda',
+              title: 'Timsort (Python/Java) y Elasticsearch',
+              shortDesc: 'Garantía O(n log n) en ordenamiento e indexación masiva',
+              explanation: 'Ordenar millones de registros financieros o logs en tiempo real colapsaría con algoritmos cuadráticos O(n²) como Bubble o Selection Sort.',
+              latex: 'T_{\\text{Timsort}}(n) \\in O(n \\log n) \\text{ (peor caso)}, \\quad \\Omega(n) \\text{ (mejor caso)}',
+              industryDomain: 'Ingeniería de Software y Motores de Búsqueda',
+              industryCase: 'Python (list.sort) y Java (Arrays.sort) implementan Timsort, un algoritmo híbrido que garantiza cota superior O(n log n) en el peor caso y aprovecha datos parcialmente ordenados en Ω(n).'
+            }
+          ]
+        },
+
+        // ==================== EJE 5: ENLACES CRUZADOS ====================
+        {
+          id: 'l5_main',
+          axis: 'L5',
+          linkLabel: 'articula el curso vía',
+          subtitleTag: 'Síntesis Transversal',
+          title: '5. Enlaces Cruzados entre Lecturas',
+          shortDesc: 'Conexiones lógicas entre verificación y complejidad',
+          explanation: 'Las cuatro lecturas forman una cadena deductiva continua: la especificación (L1) alimenta el cálculo de wp (L2), que se generaliza a ciclos mediante invariantes (L3), cuya cota determina el costo computacional (L4).',
+          latex: '\\text{L1 } \\{Q\\}S\\{R\\} \\;\\leftrightarrow\\; \\text{L2 } \\text{wp} \\;\\leftrightarrow\\; \\text{L3 } (P, t) \\;\\leftrightarrow\\; \\text{L4 } O(g(n))',
+          industryDomain: 'Diseño Integral de Algoritmos Confiables',
+          industryCase: 'Un ingeniero de software completo no separa la verificación de la eficiencia: usa precondiciones para evitar peores casos y cotas de ciclo para demostrar tanto terminación como complejidad temporal.',
+          expanded: true,
+          children: [
+            {
+              id: 'l5_1_2',
+              axis: 'L5',
+              linkLabel: 'conecta L1 → L2',
+              subtitleTag: 'De Especificación a Prueba',
+              title: 'Hoare {Q}S{R} ⇒ wp(S, R)',
+              shortDesc: 'Validez de triplas demostrada vía implicación lógica',
+              explanation: 'La Lectura 1 define qué significa que una tripla {Q}S{R} sea válida; la Lectura 2 provee el mecanismo algebraico para demostrarlo reduciendo la tripla a [Q ⇒ wp(S, R)].',
+              latex: '\\{Q\\}S\\{R\\} \\text{ es válida} \\;\\iff\\; [Q \\Rightarrow \\text{wp}(S, R)]',
+              industryDomain: 'Automatización de Pruebas Formales',
+              industryCase: 'Convierte especificaciones declarativas en obligaciones de prueba booleanas verificables automáticamente.'
+            },
+            {
+              id: 'l5_2_3',
+              axis: 'L5',
+              linkLabel: 'conecta L2 → L3',
+              subtitleTag: 'De Secuencias a Ciclos',
+              title: 'wp Recursiva ⇒ Teorema de Invarianza',
+              shortDesc: 'Sustitución de recurrencias por Invariante P y Cota t',
+              explanation: 'Dado que calcular wp(while C do S, R) genera una ecuación recursiva infinita, la Lectura 3 introduce el invariante P y la cota t como alternativa finita e inductiva.',
+              latex: '\\text{wp}(\\text{while}, R) \\;\\xrightarrow{\\text{inducción}}\\; (\\text{Invariante } P \\;\\land\\; \\text{Cota } t)',
+              industryDomain: 'Verificación de Bucles en Software Crítico',
+              industryCase: 'Permite certificar algoritmos iterativos complejos sin desplegar infinitamente el árbol de ejecución.'
+            },
+            {
+              id: 'l5_3_4',
+              axis: 'L5',
+              linkLabel: 'conecta L3 → L4',
+              subtitleTag: 'De Terminación a Complejidad',
+              title: 'Cota de Ciclo (t) ⇒ Tiempo T(n)',
+              shortDesc: 'El límite de iteraciones acota operaciones RAM',
+              explanation: 'La cota de ciclo t (Lectura 3) no solo prueba que el ciclo termina en un número finito de pasos (t₀ - T_min + 1), sino que entrega exactamente el número de iteraciones usado para calcular T(n) en el modelo RAM (Lectura 4).',
+              latex: 'k_{\\max} = t_0 - T_{\\min} + 1 \\;\\implies\\; T(n) = O(k_{\\max} \\cdot T_{\\text{cuerpo}})',
+              industryDomain: 'Análisis de Tiempo de Ejecución en Peor Caso (WCET)',
+              industryCase: 'En sistemas embebidos aeroespaciales (WCET), la cota de ciclo demuestra simultáneamente que el programa no se cuelga y que responde dentro del límite de milisegundos.'
+            },
+            {
+              id: 'l5_4_1',
+              axis: 'L5',
+              linkLabel: 'conecta L4 → L1',
+              subtitleTag: 'De Eficiencia a Contrato',
+              title: 'Peor Caso O(g(n)) ⇒ Precondición Q',
+              shortDesc: 'Restringir entradas evita degradación asintótica',
+              explanation: 'El análisis de peor caso (Lectura 4) revela qué configuraciones de datos degradan el rendimiento; la Precondición Q (Lectura 1) permite restringir el dominio de entrada para garantizar eficiencia y estabilidad.',
+              latex: '\\{\\text{Pre } Q: \\text{datos acotados/validados}\\} \\;\\implies\\; T(n) \\in O(n \\log n)',
+              industryDomain: 'Arquitectura de APIs y Motores de Consulta',
+              industryCase: 'Limitar el tamaño máximo de página o exigir índices en consultas SQL mediante precondiciones evita escaneos completos O(n²) en producción.'
+            }
+          ]
+        }
+      ]
+    };
+
+    // Enlaces cruzados visuales (curvas punteadas entre nodos de distintas ramas)
+    const CROSS_CONNECTIONS = [
+      { from: 'l1_tripla', to: 'l2_wp', label: 'se demuestra con wp' },
+      { from: 'l2_reglas', to: 'l3_invariante', label: 'ciclos requieren P' },
+      { from: 'l3_cota', to: 'l4_ram', label: 'acota iteraciones de T(n)' },
+      { from: 'l4_casos', to: 'l1_spec', label: 'Q filtra peor caso' }
+    ];
+
+    // Estado de la aplicación
+    let state = {
+      scale: 0.88,
+      translateX: 60,
+      translateY: 40,
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      selectedNodeId: 'root',
+      activeFilter: 'ALL',
+      searchQuery: '',
+      showCrossLinks: true
+    };
+
+    // Elementos DOM
+    const canvasViewport = document.getElementById('canvasViewport');
+    const canvasWorld = document.getElementById('canvasWorld');
+    const edgesSvg = document.getElementById('edgesSvg');
+    const linkLabelsLayer = document.getElementById('linkLabelsLayer');
+    const nodesLayer = document.getElementById('nodesLayer');
+    const inspectorContent = document.getElementById('inspectorContent');
+    const inspBadge = document.getElementById('inspBadge');
+    const inspSubtitleTag = document.getElementById('inspSubtitleTag');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+    // Mapa plano para búsqueda rápida por ID
+    const nodeIndex = new Map();
+    const parentIndex = new Map();
+
+    function indexTree(node, parent = null) {
+      nodeIndex.set(node.id, node);
+      if (parent) parentIndex.set(node.id, parent);
+      if (node.children) {
+        node.children.forEach(child => indexTree(child, node));
+      }
+    }
+    indexTree(MAP_DATA);
+
+    // ==================== ALGORITMO DE LAYOUT JERÁRQUICO HORIZONTAL ====================
+    const NODE_WIDTH = 248;
+    const NODE_HEIGHT = 82;
+    const LEVEL_GAP_X = 390; // Espacio amplio horizontal para las píldoras de enlace
+    const SIBLING_GAP_Y = 24;
+
+    function isNodeVisible(node) {
+      if (state.activeFilter !== 'ALL' && node.id !== 'root') {
+        if (node.axis !== state.activeFilter) return false;
+      }
+      return true;
+    }
+
+    function matchesSearch(node) {
+      if (!state.searchQuery) return true;
+      const q = state.searchQuery.toLowerCase();
+      return (
+        node.title.toLowerCase().includes(q) ||
+        node.shortDesc.toLowerCase().includes(q) ||
+        node.explanation.toLowerCase().includes(q) ||
+        (node.industryCase && node.industryCase.toLowerCase().includes(q)) ||
+        (node.linkLabel && node.linkLabel.toLowerCase().includes(q))
+      );
+    }
+
+    // Si hay búsqueda activa, expandir automáticamente ancestros de nodos coincidentes
+    function autoExpandForSearch() {
+      if (!state.searchQuery) return;
+      nodeIndex.forEach(node => {
+        if (matchesSearch(node)) {
+          let curr = parentIndex.get(node.id);
+          while (curr) {
+            curr.expanded = true;
+            curr = parentIndex.get(curr.id);
+          }
+        }
+      });
+    }
+
+    // Calcula alturas de subárboles y asigna coordenadas (x, y)
+    function computeLayout(root) {
+      const positionedNodes = [];
+      const edges = [];
+
+      function getVisibleChildren(node) {
+        if (!node.children || !node.expanded) return [];
+        return node.children.filter(isNodeVisible);
+      }
+
+      function measureSubtreeHeight(node) {
+        const visChildren = getVisibleChildren(node);
+        if (visChildren.length === 0) {
+          node._subtreeHeight = NODE_HEIGHT;
+          return NODE_HEIGHT;
+        }
+        let total = 0;
+        visChildren.forEach((child, idx) => {
+          total += measureSubtreeHeight(child);
+          if (idx < visChildren.length - 1) total += SIBLING_GAP_Y;
+        });
+        node._subtreeHeight = Math.max(NODE_HEIGHT, total);
+        return node._subtreeHeight;
+      }
+
+      function assignCoordinates(node, depth, topY) {
+        const x = depth * LEVEL_GAP_X + 40;
+        const y = topY + (node._subtreeHeight - NODE_HEIGHT) / 2;
+        node._x = x;
+        node._y = y;
+        positionedNodes.push(node);
+
+        const visChildren = getVisibleChildren(node);
+        let currentY = topY;
+        visChildren.forEach(child => {
+          assignCoordinates(child, depth + 1, currentY);
+          edges.push({ source: node, target: child });
+          currentY += child._subtreeHeight + SIBLING_GAP_Y;
+        });
+      }
+
+      measureSubtreeHeight(root);
+      assignCoordinates(root, 0, 40);
+      return { positionedNodes, edges };
+    }
+
+    // ==================== RENDERIZADO DEL MAPA ====================
+    function renderMap() {
+      autoExpandForSearch();
+      const { positionedNodes, edges } = computeLayout(MAP_DATA);
+
+      edgesSvg.innerHTML = '';
+      linkLabelsLayer.innerHTML = '';
+      nodesLayer.innerHTML = '';
+
+      // Definir marcadores de flecha en SVG por color
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      Object.entries(AXIS_THEMES).forEach(([key, theme]) => {
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+        marker.setAttribute('id', `arrow-${key}`);
+        marker.setAttribute('viewBox', '0 0 10 10');
+        marker.setAttribute('refX', '8');
+        marker.setAttribute('refY', '5');
+        marker.setAttribute('markerWidth', '6');
+        marker.setAttribute('markerHeight', '6');
+        marker.setAttribute('orient', 'auto-start-reverse');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M 0 1.5 L 8 5 L 0 8.5 z');
+        path.setAttribute('fill', theme.accent);
+        marker.appendChild(path);
+        defs.appendChild(marker);
+      });
+      edgesSvg.appendChild(defs);
+
+      const posMap = new Map();
+      positionedNodes.forEach(n => posMap.set(n.id, n));
+
+      // 1. Dibujar Enlaces Jerárquicos + Píldoras de Proposición
+      edges.forEach(({ source, target }) => {
+        const theme = AXIS_THEMES[target.axis] || AXIS_THEMES.ROOT;
+        const x1 = source._x + NODE_WIDTH;
+        const y1 = source._y + NODE_HEIGHT / 2;
+        const x2 = target._x - 4;
+        const y2 = target._y + NODE_HEIGHT / 2;
+        const midX = (x1 + x2) / 2;
+
+        // Curva Bézier cúbica suave
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', theme.accent);
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-opacity', '0.75');
+        path.setAttribute('marker-end', `url(#arrow-${target.axis})`);
+        edgesSvg.appendChild(path);
+
+        // Píldora con la palabra de enlace en el punto medio de la curva
+        if (target.linkLabel) {
+          const pill = document.createElement('div');
+          const midY = (y1 + y2) / 2;
+          pill.className = `absolute -translate-x-1/2 -translate-y-1/2 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border shadow-2xs whitespace-nowrap bg-white ${theme.pillBg}`;
+          pill.style.left = `${midX}px`;
+          pill.style.top = `${midY}px`;
+          pill.textContent = target.linkLabel;
+          linkLabelsLayer.appendChild(pill);
+        }
+      });
+
+      // 2. Dibujar Enlaces Cruzados entre Lecturas (si ambos extremos están visibles)
+      if (state.showCrossLinks && state.activeFilter === 'ALL') {
+        CROSS_CONNECTIONS.forEach(conn => {
+          const src = posMap.get(conn.from);
+          const tgt = posMap.get(conn.to);
+          if (src && tgt) {
+            const x1 = src._x + NODE_WIDTH / 2;
+            const y1 = src._y + NODE_HEIGHT;
+            const x2 = tgt._x + NODE_WIDTH / 2;
+            const y2 = tgt._y;
+            const ctrlOffset = Math.max(80, Math.abs(x2 - x1) * 0.25);
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const d = `M ${x1} ${y1} C ${x1 + ctrlOffset} ${y1 + 60}, ${x2 - ctrlOffset} ${y2 - 60}, ${x2} ${y2}`;
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#db2777');
+            path.setAttribute('stroke-width', '1.8');
+            path.setAttribute('stroke-opacity', '0.65');
+            path.setAttribute('class', 'cross-link-path');
+            path.setAttribute('marker-end', 'url(#arrow-L5)');
+            edgesSvg.appendChild(path);
+          }
+        });
+      }
+
+      // 3. Dibujar Tarjetas de Nodos
+      positionedNodes.forEach(node => {
+        const theme = AXIS_THEMES[node.axis] || AXIS_THEMES.ROOT;
+        const isSelected = state.selectedNodeId === node.id;
+        const isMatch = matchesSearch(node);
+        const visibleChildren = node.children ? node.children.filter(isNodeVisible) : [];
+        const hasChildren = visibleChildren.length > 0;
+
+        const card = document.createElement('div');
+        card.style.left = `${node._x}px`;
+        card.style.top = `${node._y}px`;
+        card.style.width = `${NODE_WIDTH}px`;
+        card.style.height = `${NODE_HEIGHT}px`;
+
+        const opacityClass = state.searchQuery && !isMatch ? 'opacity-30' : 'opacity-100';
+        const highlightRing = state.searchQuery && isMatch ? 'ring-2 ring-amber-400 bg-amber-50/40' : 'bg-white';
+        const selectedClass = isSelected ? 'selected' : '';
+
+        card.className = `node-card absolute rounded-xl border-2 ${theme.border} ${highlightRing} ${selectedClass} ${opacityClass} px-3.5 py-2.5 flex flex-col justify-center cursor-pointer shadow-sm`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-1 mb-0.5">
+            <span class="text-[9.5px] font-extrabold uppercase tracking-wider ${theme.labelColor}">${theme.badge}</span>
+            ${node.industryDomain ? `<span class="w-1.5 h-1.5 rounded-full" style="background:${theme.accent}" title="Incluye caso real de ingeniería"></span>` : ''}
+          </div>
+          <div class="text-[13px] font-bold text-slate-900 leading-snug truncate" title="${node.title}">${node.title}</div>
+          <div class="text-[11px] text-slate-500 truncate mt-0.5">${node.shortDesc}</div>
+        `;
+
+        // Clic para inspeccionar nodo
+        card.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectNode(node.id);
+        });
+
+        // Botón circular (+/-) para desplegar/colapsar hijos
+        if (hasChildren) {
+          const toggleBtn = document.createElement('button');
+          toggleBtn.className = `absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-white font-bold text-sm flex items-center justify-center shadow-md hover:scale-110 transition z-10 cursor-pointer`;
+          toggleBtn.style.backgroundColor = theme.accent;
+          toggleBtn.textContent = node.expanded ? '−' : '+';
+          toggleBtn.title = node.expanded ? 'Colapsar rama' : 'Desplegar conceptos hijos';
+          toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            node.expanded = !node.expanded;
+            renderMap();
+          });
+          card.appendChild(toggleBtn);
+        }
+
+        nodesLayer.appendChild(card);
+      });
+    }
+
+    // ==================== PANEL INSPECTOR DERECHO ====================
+    function selectNode(nodeId) {
+      state.selectedNodeId = nodeId;
+      const node = nodeIndex.get(nodeId);
+      if (!node) return;
+
+      const theme = AXIS_THEMES[node.axis] || AXIS_THEMES.ROOT;
+      const parent = parentIndex.get(node.id);
+
+      inspBadge.textContent = theme.badge;
+      inspBadge.className = `px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide ${theme.tagColor}`;
+      inspSubtitleTag.textContent = node.subtitleTag || '';
+
+      // Construir proposiciones lógicas conectadas a este nodo
+      let propositionsHtml = '';
+      if (parent && node.linkLabel) {
+        propositionsHtml += `
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div class="text-slate-500 font-medium mb-1">${parent.title}</div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border ${theme.pillBg}">${node.linkLabel}</span>
+              <span class="font-bold text-slate-900">${node.title}</span>
+            </div>
+          </div>
+        `;
+      }
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(ch => {
+          const chTheme = AXIS_THEMES[ch.axis] || theme;
+          propositionsHtml += `
+            <div onclick="selectNode('${ch.id}')" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 text-xs cursor-pointer transition">
+              <div class="text-slate-800 font-semibold mb-1">${node.title}</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md font-semibold text-[11px] border ${chTheme.pillBg}">${ch.linkLabel || 'se relaciona con'}</span>
+                <span class="font-bold underline decoration-slate-300" style="color:${chTheme.accent}">${ch.title}</span>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      inspectorContent.innerHTML = `
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900 leading-snug">${node.title}</h2>
+          <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed mt-2">${node.explanation}</p>
+        </div>
+
+        <!-- Caja de Formalización Matemática LaTeX -->
+        <div class="rounded-2xl bg-slate-900 text-slate-100 p-4 shadow-md border border-slate-800">
+          <div class="flex items-center justify-between mb-2.5">
+            <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">Formalización Matemática</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-indigo-300 border border-slate-700">LaTeX</span>
+          </div>
+          <div class="overflow-x-auto py-2 text-center text-sm sm:text-base text-white">
+            $$${node.latex}$$
+          </div>
+        </div>
+
+        <!-- Proposiciones Lógicas -->
+        ${propositionsHtml ? `
+          <div>
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-2.5">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <span>Proposiciones Lógicas en el Mapa</span>
+            </div>
+            <div class="space-y-2">${propositionsHtml}</div>
+          </div>
+        ` : ''}
+
+        <!-- Aplicación en la Industria / Caso Real -->
+        <div class="rounded-2xl bg-indigo-50/70 border border-indigo-200/80 p-4">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-indigo-800">
+              <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              <span>Aplicación en la Industria</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-indigo-700 border border-indigo-200 truncate max-w-[160px]">${node.industryDomain}</span>
+          </div>
+          <p class="text-xs text-slate-700 leading-relaxed">${node.industryCase}</p>
+        </div>
+      `;
+
+      // Renderizar ecuaciones LaTeX dentro del inspector
+      if (window.renderMathInElement) {
+        renderMathInElement(inspectorContent, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+
+      renderMap();
+    }
+
+    // ==================== NAVEGACIÓN PAN & ZOOM ====================
+    function updateTransform() {
+      canvasWorld.style.transform = `translate(${state.translateX}px, ${state.translateY}px) scale(${state.scale})`;
+      document.getElementById('zoomResetBtn').textContent = `${Math.round(state.scale * 100)}%`;
+    }
+
+    canvasViewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.node-card') || e.target.closest('button')) return;
+      state.isDragging = true;
+      state.startX = e.clientX - state.translateX;
+      state.startY = e.clientY - state.translateY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.isDragging) return;
+      state.translateX = e.clientX - state.startX;
+      state.translateY = e.clientY - state.startY;
+      updateTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isDragging = false;
+    });
+
+    // Soporte táctil básico para arrastrar en tablets/móviles
+    canvasViewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1 && !e.target.closest('.node-card')) {
+        state.isDragging = true;
+        state.startX = e.touches[0].clientX - state.translateX;
+        state.startY = e.touches[0].clientY - state.translateY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!state.isDragging || e.touches.length !== 1) return;
+      state.translateX = e.touches[0].clientX - state.startX;
+      state.translateY = e.touches[0].clientY - state.startY;
+      updateTransform();
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      state.isDragging = false;
+    });
+
+    // Zoom con rueda del ratón
+    canvasViewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      const newScale = Math.min(1.8, Math.max(0.35, state.scale * zoomFactor));
+      const rect = canvasViewport.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      state.translateX = mouseX - (mouseX - state.translateX) * (newScale / state.scale);
+      state.translateY = mouseY - (mouseY - state.translateY) * (newScale / state.scale);
+      state.scale = newScale;
+      updateTransform();
+    }, { passive: false });
+
+    // Botones de control de Zoom
+    document.getElementById('zoomInBtn').addEventListener('click', () => {
+      state.scale = Math.min(1.8, state.scale + 0.12);
+      updateTransform();
+    });
+
+    document.getElementById('zoomOutBtn').addEventListener('click', () => {
+      state.scale = Math.max(0.35, state.scale - 0.12);
+      updateTransform();
+    });
+
+    document.getElementById('zoomResetBtn').addEventListener('click', () => {
+      state.scale = 0.88;
+      state.translateX = 50;
+      state.translateY = 40;
+      updateTransform();
+    });
+
+    document.getElementById('centerMapBtn').addEventListener('click', () => {
+      state.scale = 0.82;
+      state.translateX = 40;
+      state.translateY = 30;
+      updateTransform();
+    });
+
+    // ==================== FILTROS, BÚSQUEDA Y EXPANSIÓN ====================
+    function applyAxisFilter(axis) {
+      state.activeFilter = axis;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.filter === axis) {
+          btn.classList.add('bg-slate-900', 'text-white', 'shadow-xs');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white', 'shadow-xs');
+        }
+      });
+      if (axis !== 'ALL') {
+        const targetAxisNode = MAP_DATA.children.find(c => c.axis === axis);
+        if (targetAxisNode) {
+          targetAxisNode.expanded = true;
+          selectNode(targetAxisNode.id);
+        }
+      }
+      state.translateX = 40;
+      state.translateY = 40;
+      updateTransform();
+      renderMap();
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyAxisFilter(btn.dataset.filter));
+    });
+
+    // Buscador
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value.trim();
+      clearSearchBtn.classList.toggle('hidden', !state.searchQuery);
+      renderMap();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      state.searchQuery = '';
+      clearSearchBtn.classList.add('hidden');
+      renderMap();
+    });
+
+    // Expandir / Colapsar Todo
+    document.getElementById('expandAllBtn').addEventListener('click', () => {
+      nodeIndex.forEach(n => { if (n.children) n.expanded = true; });
+      renderMap();
+    });
+
+    document.getElementById('collapseAllBtn').addEventListener('click', () => {
+      nodeIndex.forEach(n => {
+        if (n.id !== 'root' && n.children) n.expanded = false;
+      });
+      MAP_DATA.expanded = true;
+      state.translateX = 60;
+      state.translateY = 120;
+      updateTransform();
+      renderMap();
+    });
+
+    // Mostrar / Ocultar Enlaces Cruzados
+    const toggleCrossLinksBtn = document.getElementById('toggleCrossLinksBtn');
+    toggleCrossLinksBtn.addEventListener('click', () => {
+      state.showCrossLinks = !state.showCrossLinks;
+      toggleCrossLinksBtn.classList.toggle('opacity-50', !state.showCrossLinks);
+      renderMap();
+    });
+
+    // Descargar el archivo HTML completo autocontenido
+    document.getElementById('downloadHtmlBtn').addEventListener('click', () => {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Mapa_Conceptual_Analisis_y_Verificacion_Algoritmos.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Inicialización al cargar la página
+    window.onload = function () {
+      updateTransform();
+      selectNode('l1_main');
+    };
+  </script>
+
+</body></html>
